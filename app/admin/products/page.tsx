@@ -34,18 +34,20 @@ async function getProducts(page: number = 1, pageSize: number = 10, searchTerm: 
   return products
 }
 
-export default async function page({searchParams}: {searchParams: {page:string, search: string}}) {
+export default async function page({searchParams}: {searchParams: Promise<{page:string, search: string}>}) {
 
   // Buscando params dentro del servidor
-  const page = await +searchParams.page || 1;
-  const searchTerm = await searchParams.search || ''
+  const { page, search} = await searchParams;
+  
+  const productsPage = await +page || 1;
+  const searchTerm = await search || ''
   const pageSize = 10;
 
   // Cuando existen multiples promsas independientes podemos realizarlas ambas en paralelo...
   // promise #1: const products = await getProducts(page, pageSize);
   // promise #2: const totalProducts = await productsCount();
 
-  const [products, totalProducts] = await Promise.all([getProducts(page, pageSize, searchTerm), productsCount(searchTerm)])
+  const [products, totalProducts] = await Promise.all([getProducts(productsPage, pageSize, searchTerm), productsCount(searchTerm)])
   const totalPages = Math.ceil(totalProducts / pageSize)
 
   return (
@@ -66,7 +68,7 @@ export default async function page({searchParams}: {searchParams: {page:string, 
       </div>
       <div>
         <ProductTable products={products} />
-        <ProductsNavigation page={page} totalPages={totalPages} searchTerm={searchTerm} />
+        <ProductsNavigation page={productsPage} totalPages={totalPages} searchTerm={searchTerm} />
       </div>
     </div>
 
