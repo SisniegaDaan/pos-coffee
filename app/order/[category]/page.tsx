@@ -1,6 +1,5 @@
 import ProductCard from '@/components/products/ProductCard';
 import { prisma } from '@/src/lib/prisma';
-import { Category } from '@prisma/client';
 import Heading from '@/components/ui/Heading';
 
 
